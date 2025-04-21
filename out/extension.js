@@ -74,13 +74,7 @@ class SidebarProvider {
 		  h2 {
 			margin-top: 0;
 			color: #007acc;
-		  }
-		  .rainbow-text {
-			background: linear-gradient(to right, red, orange, yellow, green, cyan, blue, violet);
-			-webkit-background-clip: text;
-			-webkit-text-fill-color: transparent;
-			display: inline-block;
-		  }
+	
 		  label {
 			display: block;
 			margin-top: 1rem;
@@ -136,7 +130,7 @@ class SidebarProvider {
 		</style>
 	  </head>
 	  <body>
-		<h2>Robot <span class="rainbow-text">Vibe</span> Coder</h2>
+		<h2>Robot Vibe Coder</h2>
   
 		<label>Package</label>
 		<input id="package" value="subsystems.scoring" />
@@ -226,7 +220,7 @@ class SidebarProvider {
 			vscode.postMessage({ command: 'generate', data });
 		  });
   
-		  updateLeadMotorDropdown(); // Initialize
+		  updateLeadMotorDropdown();
 		</script>
 	  </body>
 	  </html>
