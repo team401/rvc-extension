@@ -26,8 +26,13 @@ class SidebarProvider implements vscode.WebviewViewProvider {
         const filePath = path.join(folder, `src/main/java/frc/robot/${msg.data.package.replace(".", "/")}/${msg.data.name}_config.json`);
 		const cp = require('child_process')
 		console.log("Executing that thang")
-		let term: vscode.Terminal = vscode.window.createTerminal("RVC");
-		term.sendText(`echo '${JSON.stringify(msg.data, null, 2)}' | robotvibecoder -f src/main/java/frc/robot/${msg.data.package.replace(".", "/")} generate --stdin\n`)
+		let term: vscode.Terminal = vscode.window.createTerminal({
+			name: "robotvibecoder",
+			isTransient: true,
+			hideFromUser: true,
+		});
+		term.sendText(`echo '${JSON.stringify(msg.data, null, 0)}' | robotvibecoder -f src/main/java/frc/robot/${msg.data.package.replace(".", "/")} generate --stdin`, true)
+		term.show(false);
         fs.writeFileSync(filePath, JSON.stringify(msg.data, null, 2));
         vscode.window.showInformationMessage('Config saved!');
       }
