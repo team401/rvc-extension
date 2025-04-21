@@ -5,7 +5,7 @@
   "version": "0.0.1",
   "publisher": "team401",
   "engines": {
-    "vscode": "^1.99.0"
+    "vscode": "^1.96.0"
   },
   "categories": [
     "Other"
@@ -27,7 +27,7 @@
     "views": {
       "robotvibecoder": [
         {
-          "type": "webview",   
+          "type": "webview",
           "id": "robotvibecoder.sidebar",
           "name": "Generate Mechanism"
         }
