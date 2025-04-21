@@ -1,41 +1,53 @@
 {
   "name": "robotvibecoder",
-  "displayName": "robotvibecoder",
-  "description": "Automatically generate boilerplate FRC mechanisms ",
+  "displayName": "RobotVibeCoder",
+  "description": "Generate FRC robot mechanism code stubs with a simple GUI.",
   "version": "0.0.1",
+  "publisher": "team401",
   "engines": {
     "vscode": "^1.99.0"
   },
   "categories": [
     "Other"
   ],
-  "activationEvents": [],
   "main": "./out/extension.js",
+  "activationEvents": [
+    "onView:robotvibecoder.sidebar"
+  ],
   "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "robotvibecoder",
+          "title": "RobotVibeCoder",
+          "icon": "media/icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "robotvibecoder": [
+        {
+          "type": "webview",   
+          "id": "robotvibecoder.sidebar",
+          "name": "Generate Mechanism"
+        }
+      ]
+    },
     "commands": [
       {
-        "command": "robotvibecoder.helloWorld",
-        "title": "Hello World"
+        "command": "robotvibecoder.generateMechanism",
+        "title": "Generate Mechanism"
       }
     ]
   },
   "scripts": {
-    "vscode:prepublish": "npm run compile",
     "compile": "tsc -p ./",
-    "watch": "tsc -watch -p ./",
-    "pretest": "npm run compile && npm run lint",
-    "lint": "eslint src",
-    "test": "vscode-test"
+    "watch": "tsc -w -p ./",
+    "vscode:prepublish": "npm run compile"
   },
   "devDependencies": {
+    "@types/node": "^20.0.0",
     "@types/vscode": "^1.99.0",
-    "@types/mocha": "^10.0.10",
-    "@types/node": "20.x",
-    "@typescript-eslint/eslint-plugin": "^8.28.0",
-    "@typescript-eslint/parser": "^8.28.0",
-    "eslint": "^9.23.0",
-    "typescript": "^5.8.2",
-    "@vscode/test-cli": "^0.0.10",
-    "@vscode/test-electron": "^2.4.1"
+    "typescript": "^5.0.0"
   }
 }
