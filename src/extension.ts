@@ -3,44 +3,43 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 export function activate(context: vscode.ExtensionContext) {
-  context.subscriptions.push(
-    vscode.window.registerWebviewViewProvider(
-      'robotvibecoder.sidebar',
-      new SidebarProvider(context),
-      { webviewOptions: { retainContextWhenHidden: true } }
-    )
-  );
+	context.subscriptions.push(
+		vscode.window.registerWebviewViewProvider(
+			'robotvibecoder.sidebar',
+			new SidebarProvider(context),
+			{ webviewOptions: { retainContextWhenHidden: true } }
+		)
+	);
 }
 
 class SidebarProvider implements vscode.WebviewViewProvider {
-  constructor(private context: vscode.ExtensionContext) {}
+	constructor(private context: vscode.ExtensionContext) { }
 
-  resolveWebviewView(view: vscode.WebviewView) {
-    view.webview.options = { enableScripts: true };
-    view.webview.html = this.getHtml(view.webview);
+	resolveWebviewView(view: vscode.WebviewView) {
+		view.webview.options = { enableScripts: true };
+		view.webview.html = this.getHtml(view.webview);
 
-    view.webview.onDidReceiveMessage(msg => {
-      if (msg.command === 'generate') {
-        const folder = vscode.workspace.workspaceFolders?.[0].uri.fsPath;
-        if (!folder) return;
-        const filePath = path.join(folder, `src/main/java/frc/robot/${msg.data.package.replace(".", "/")}/${msg.data.name}_config.json`);
-		const cp = require('child_process')
-		console.log("Executing that thang")
-		let term: vscode.Terminal = vscode.window.createTerminal({
-			name: "robotvibecoder",
-			isTransient: true,
-			hideFromUser: true,
+		view.webview.onDidReceiveMessage(msg => {
+			if (msg.command === 'generate') {
+				const folder = vscode.workspace.workspaceFolders?.[0].uri.fsPath;
+				if (!folder) return;
+				const filePath = path.join(folder, `src/main/java/frc/robot/${msg.data.package.replace(".", "/")}/${msg.data.name}_config.json`);
+				const cp = require('child_process')
+				let term: vscode.Terminal = vscode.window.createTerminal({
+					name: "robotvibecoder",
+					isTransient: true,
+					hideFromUser: true,
+				});
+				term.sendText(`echo '${JSON.stringify(msg.data, null, 0)}' | robotvibecoder -f src/main/java/frc/robot/${msg.data.package.replace(".", "/")} generate --stdin`, true)
+				term.show(false);
+				fs.writeFileSync(filePath, JSON.stringify(msg.data, null, 2));
+				vscode.window.showInformationMessage('Config saved!');
+			}
 		});
-		term.sendText(`echo '${JSON.stringify(msg.data, null, 0)}' | robotvibecoder -f src/main/java/frc/robot/${msg.data.package.replace(".", "/")} generate --stdin`, true)
-		term.show(false);
-        fs.writeFileSync(filePath, JSON.stringify(msg.data, null, 2));
-        vscode.window.showInformationMessage('Config saved!');
-      }
-    });
-  }
+	}
 
-  private getHtml(webview: vscode.Webview) {
-	return `
+	private getHtml(webview: vscode.Webview) {
+		return `
 	  <!DOCTYPE html>
 	  <html lang="en">
 	  <head>
@@ -205,10 +204,10 @@ class SidebarProvider implements vscode.WebviewViewProvider {
 	  </body>
 	  </html>
 	`;
+	}
+
+
+
 }
 
-
-  
-}
-
-export function deactivate() {}
+export function deactivate() { }
