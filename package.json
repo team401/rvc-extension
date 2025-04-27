@@ -33,7 +33,12 @@
     "commands": [
       {
         "command": "robotvibecoder.generateMechanism",
-        "title": "Generate Mechanism"
+        "title": "RobotVibeCoder: Generate Mechanism"
+      }
+    ],
+    "taskDefinitions": [
+      {
+        "type": "rvc-generate"
       }
     ]
   },
