@@ -61,7 +61,7 @@ function ensurePackagePath(pkg: string): string | undefined {
 	const folder = vscode.workspace.workspaceFolders?.[0].uri.fsPath;
 	if (!workspaceUri || !folder) return;
 
-	const configFolderPath = path.join(folder, `src/main/java/frc/robot/${pkg.replace(".", "/")}/`);
+	const configFolderPath = path.normalize(path.join(folder, `src/main/java/frc/robot/${pkg.replace(".", "/")}/`));
 	if (!fs.existsSync(configFolderPath)) {
 		fs.mkdirSync(configFolderPath);
 	}
@@ -76,7 +76,8 @@ function ensurePackagePath(pkg: string): string | undefined {
  * @returns void
  */
 async function executeRVCGenerate(pkg: string, configFilePath: string) {
-	const command = `robotvibecoder -f src/main/java/frc/robot/${pkg.replace(".", "/")} generate -c ${configFilePath}`;
+	const folder = path.normalize(`src/main/java/frc/robot/${pkg.replace(".", "/")}/`)
+	const command = `robotvibecoder -f ${folder} generate -c ${configFilePath}`;
 	const shell = new vscode.ShellExecution(command);
 
 	const workspaceUri = vscode.workspace.workspaceFolders?.[0].uri;
