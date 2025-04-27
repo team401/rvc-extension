@@ -10,6 +10,89 @@ export function activate(context: vscode.ExtensionContext) {
 			{ webviewOptions: { retainContextWhenHidden: true } }
 		)
 	);
+
+	context.subscriptions.push(
+		vscode.commands.registerCommand(
+			"robotvibecoder.generateMechanism", generateMechanism
+		)
+	)
+}
+
+interface MechanismConfig {
+	package: string,
+	name: string,
+	kind: "Arm" | "Elevator" | "Flywheel",
+	canbus: string,
+	motors: string[],
+	lead_motor: string,
+	encoder: string
+}
+
+async function generateMechanism() {
+	const configFilePath = vscode.window.activeTextEditor?.document.uri.fsPath;
+
+	if (!configFilePath || !fs.existsSync(configFilePath)) {
+		vscode.window.showErrorMessage("Couldn't open config: please open a config JSON file");
+		return;
+	}
+
+	let jsonData: MechanismConfig;
+	try {
+		const fileContent = fs.readFileSync(configFilePath, "utf-8");
+
+		jsonData = JSON.parse(fileContent);
+	} catch (error) {
+		vscode.window.showErrorMessage(`Error reading/parsing JSON: ${error}. Please open a valid config JSON file.`);
+		return;
+	}
+
+	ensurePackagePath(jsonData.package);
+	await executeRVCGenerate(jsonData.package, configFilePath);
+}
+
+/**
+ * Given a package string, create a folder and return the path where files should be generated
+ * 
+ * @param pkg The "package" field of the config being read
+ * @returns Absolute path where files should be generated, or undefined if an error occurs
+ */
+function ensurePackagePath(pkg: string): string | undefined {
+	const workspaceUri = vscode.workspace.workspaceFolders?.[0].uri;
+	const folder = vscode.workspace.workspaceFolders?.[0].uri.fsPath;
+	if (!workspaceUri || !folder) return;
+
+	const configFolderPath = path.join(folder, `src/main/java/frc/robot/${pkg.replace(".", "/")}/`);
+	if (!fs.existsSync(configFolderPath)) {
+		fs.mkdirSync(configFolderPath);
+	}
+
+	return configFolderPath;
+}
+
+/**
+ * Execute the rvc-generate task and invoke robotvibecoder CLI
+ * @param pkg The config package string (e.g. subsystems.scoring)
+ * @param configFilePath Path to the config JSON file to pass to RVC with --config
+ * @returns void
+ */
+async function executeRVCGenerate(pkg: string, configFilePath: string) {
+	const command = `robotvibecoder -f src/main/java/frc/robot/${pkg.replace(".", "/")} generate -c ${configFilePath}`;
+	const shell = new vscode.ShellExecution(command);
+
+	const workspaceUri = vscode.workspace.workspaceFolders?.[0].uri;
+	if (!workspaceUri) return;
+
+	const workspaceFolder: vscode.WorkspaceFolder | undefined = vscode.workspace.getWorkspaceFolder(workspaceUri);
+
+	if (workspaceFolder == undefined) {
+		vscode.window.showErrorMessage("RobotVibeCoder couldn't generate mechanism because workspace was undefined. Try opening a folder!");
+		return;
+	}
+	const task = new vscode.Task({ type: "rvc-generate" }, workspaceFolder, "Generate", "robotvibecoder", shell);
+	task.presentationOptions.echo = true;
+	task.presentationOptions.clear = true;
+
+	await vscode.tasks.executeTask(task);
 }
 
 class SidebarProvider implements vscode.WebviewViewProvider {
@@ -19,21 +102,21 @@ class SidebarProvider implements vscode.WebviewViewProvider {
 		view.webview.options = { enableScripts: true };
 		view.webview.html = this.getHtml(view.webview);
 
-		view.webview.onDidReceiveMessage(msg => {
+		view.webview.onDidReceiveMessage(async msg => {
 			if (msg.command === 'generate') {
-				const folder = vscode.workspace.workspaceFolders?.[0].uri.fsPath;
-				if (!folder) return;
-				const filePath = path.join(folder, `src/main/java/frc/robot/${msg.data.package.replace(".", "/")}/${msg.data.name}_config.json`);
-				const cp = require('child_process')
-				let term: vscode.Terminal = vscode.window.createTerminal({
-					name: "robotvibecoder",
-					isTransient: true,
-					hideFromUser: true,
-				});
-				term.sendText(`echo '${JSON.stringify(msg.data, null, 0)}' | robotvibecoder -f src/main/java/frc/robot/${msg.data.package.replace(".", "/")} generate --stdin`, true)
-				term.show(false);
-				fs.writeFileSync(filePath, JSON.stringify(msg.data, null, 2));
+				const configFolderPath = ensurePackagePath(msg.data.package);
+
+				if (!configFolderPath) {
+					vscode.window.showErrorMessage("RobotVibeCoder couldn't generate mechanism because workspace was undefined. Try opening a folder!");
+					return;
+				}
+
+				const configFilePath = path.join(configFolderPath, `${msg.data.name}_config.json`);
+
+				fs.writeFileSync(configFilePath, JSON.stringify(msg.data, null, 2));
 				vscode.window.showInformationMessage('Config saved!');
+
+				await executeRVCGenerate(msg.data.package, configFilePath);
 			}
 		});
 	}
