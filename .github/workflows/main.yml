@@ -1,12 +1,10 @@
 name: Build and release VSIX
 
-env:
-  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
 on:
   push:
     branches:
       - main
+      - 16-make-ci-work-frfr
 
 jobs:
   build:
@@ -54,4 +52,4 @@ jobs:
           tag_name: v${{ steps.info.outputs.version }}
           files: dist/*.vsix
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
