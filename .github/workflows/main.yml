@@ -1,0 +1,54 @@
+name: Build and release VSIX
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 23
+
+      - run: npm install
+
+      - run: npm install @types/vscode@1.90.0 --save-dev
+
+      - run: npx vsce package
+
+      - name: Upload VSIX artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: extension-vsix
+          path: ./*.vsix
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Download VSIX artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: extension-vsix
+          path: dist/
+
+      - name: Get version from package.json
+        id: info
+        uses: jaywcjlove/github-action-package@main
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.info.outputs.version }}
+          files: dist/*.vsix
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
