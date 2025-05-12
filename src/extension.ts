@@ -177,25 +177,34 @@ class SidebarProvider implements vscode.WebviewViewProvider {
 			border: none;
 			padding: 0 0.6rem;
 			cursor: pointer;
+			background-color: rgb(219, 32, 32);
+			color: white;
+			border: 1px solid #f53131;
+			box-shadow: inset 0px 0px 10px rgba(0, 0, 0, 0.25);
+			border-radius: 5px;
 		  }
 		  .remove-button:hover {
 			background-color: rgb(180, 4, 4);
 		  }
 		  #add-motor {
 			margin-top: 0.5rem;
-			background-color: rgb(0, 79, 227);
+			background: #006FFF;
 			color: white;
-			border: none;
-			cursor: pointer;
+			border: 1px solid #3D8BF1;
+			box-shadow: inset 0px 0px 10px rgba(0, 0, 0, 0.25);
+			border-radius: 5px;
 		  }
 		  #add-motor:hover {
 			background-color: rgb(0, 64, 202);
 		  }
 		  #generate {
+			background: #006FFF;
 			margin-top: 1.5rem;
-			background-color: rgb(0, 79, 227);
 			color: white;
-			border: none;
+			border: 2px solid #3D8BF1;
+			box-shadow: inset 0px 0px 10px rgba(0, 0, 0, 0.25);
+			border-radius: 5px;
+
 			cursor: pointer;
 		  }
 		  #generate:hover {
