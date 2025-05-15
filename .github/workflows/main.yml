@@ -5,6 +5,8 @@ on:
     branches:
       - main
       - 16-make-ci-work-frfr
+permissions:
+  contents: write
 
 jobs:
   build:
@@ -50,6 +52,6 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ steps.info.outputs.version }}
-          files: .vsix
+          files: ./*.vsix
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
