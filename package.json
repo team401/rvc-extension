@@ -2,7 +2,7 @@
   "name": "robotvibecoder",
   "displayName": "robotvibecoder",
   "description": "Automatic FRC boilerplate generator",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "publisher": "team401",
   "icon": "icon.png",
   "repository": {
