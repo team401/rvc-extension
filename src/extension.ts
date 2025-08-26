@@ -89,7 +89,7 @@ function ensurePackagePath(pkg: string): string | undefined {
 
 async function executeRVCGenerate(pkg: string, configFilePath: string) {
 	const folder = path.normalize(`src/main/java/frc/robot/${pkg.replace(".", "/")}/`);
-	const command = `robotvibecoder -f ${folder} generate -c ${configFilePath}`;
+	const command = `robotvibecoder -f "${folder}" generate -c "${configFilePath}"`;
 	const shell = new vscode.ShellExecution(command);
 
 	const workspaceUri = vscode.workspace.workspaceFolders?.[0].uri;
