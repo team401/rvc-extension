@@ -88,8 +88,12 @@ function ensurePackagePath(pkg: string): string | undefined {
 }
 
 async function executeRVCGenerate(pkg: string, configFilePath: string) {
-	const folder = path.normalize(`src/main/java/frc/robot/${pkg.replace(".", "/")}/`);
-	const command = `robotvibecoder -f "${folder}" generate -c "${configFilePath}"`;
+	let folder: String = path.normalize(`src/main/java/frc/robot/${pkg.replace(".", "/")}/`);
+	if (folder.endsWith('\\')) {
+		// Remove trailing \ from the string so it doesn't escape the end ' character
+		folder = folder.slice(0, folder.length - 1);
+	}
+	const command = `robotvibecoder -f '${folder}' generate -c '${configFilePath}'`;
 	const shell = new vscode.ShellExecution(command);
 
 	const workspaceUri = vscode.workspace.workspaceFolders?.[0].uri;
